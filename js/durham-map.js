@@ -57,22 +57,52 @@ var bounds = new google.maps.LatLngBounds();
             icon: image,
         });
 
-        content_html = "<div>test img</div><div style='font-size:12px'>test</div>";
+        const bg_img_url = page.bg_img_url
 
-        var infowindow = new google.maps.InfoWindow({
-            content: content_html,
+        content_html = `<img src="../img/condo/80aspen/1.jpg"
+                width = 250
+                style = "width: 250px; height: 150px;
+                         border-top-left-radius: 8px;
+                         border-top-right-radius: 8px;
+                         margin-bottom: 4px">` +
+            "<div class='px-1' style='font-size:12px; max-width: 250px; word-wrap: break-word;'>testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest</div>" +
+            "<div style='height:12px'></div>";
+
+
+        infoBubble = new InfoBubble({
             map: map,
+            content: content_html,
+            position: new google.maps.LatLng(-35, 151),
+            shadowStyle: 1,
+            backgroundColor: '#fff',
+            borderRadius: 8,
+            arrowSize: 0,
+            borderWidth: 0,
+            borderColor: '#2c2c2c',
+            disableAutoPan: true,
+            hideCloseButton: true,
+            arrowPosition: 30,
+            arrowStyle: 1,
+            minWidth: 250,
+            maxWidth: 250,
+            minHeight: 175,
+            padding: 0,
+            zIndex: 1
         });
+
         marker.addListener("mouseover", function() {
-            infowindow.open(map, this);
+            infoBubble.open(map, this);
         });
-        marker.addListener("mouseout", function() {
-            infowindow.close();
-        });
+
+        // marker.addListener("mouseover", function() {
+        //     infoBubble.close();
+        // });
+        console.log($(marker));
 
         new google.maps.event.addListener(marker, "click", function() {
             window.open(path, "_parent");
         });
+        // console.log(page);
     }
 
 })();
