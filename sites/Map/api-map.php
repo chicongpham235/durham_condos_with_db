@@ -8,6 +8,8 @@ include 'Database/MySqlConnection.php';
 use Database\MySqlConnection;
 use Database\Query\MySqlBuilder;
 
+header('Access-Control-Allow-Origin: *');
+
 $page = $_GET["page"] ?? null;
 $perpage = $_GET["perpage"] ?? 10;
 $search = $_GET["search"] ?? null;
