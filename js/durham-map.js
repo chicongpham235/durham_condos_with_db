@@ -98,22 +98,25 @@ async function initMap() {
     var marker = new google.maps.Marker({
       position: new google.maps.LatLng(position[0], position[1]),
       map: map,
-      title: title,
+      // title: title,
       clickable: true,
       icon: image,
     });
 
     const bg_img_url = `../${page.bg_img_url}`;
 
-    content_html =
-      `<img src=${bg_img_url}
+    let content_html = checkImageExist(bg_img_url)
+      ? `<img src=${bg_img_url}
                 width = 250
                 style = "width: 250px; height: 150px;
                          border-top-left-radius: 8px;
                          border-top-right-radius: 8px;
-                         margin-bottom: 4px">` +
+                         margin-bottom: 4px">`
+      : "";
+    console.log(content_html);
+    content_html +=
       // `<div class='px-2' style="font-size:12px; max-width: 250px; word-wrap: break-word;">${page.title}</div>` +
-      `<div class='px-2 mt-2' style="font-size:14px; font-weight:700; max-width: 250px; word-wrap: break-word;"><span style='font-weight: 400; color: gray'>Address:</span> ${title}</div>` +
+      `<div class='px-2 pt-4' style="font-size:14px; font-weight:700; max-width: 250px; word-wrap: break-word;"><span style='font-weight: 400; color: gray'>Address:</span> ${title}</div>` +
       `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Buiding name:</span> ${page.building_name}</div>` +
       `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Built:</span> ${page.built_years}</div>` +
       `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Floors:</span> ${page.floors}</div>` +
@@ -126,8 +129,8 @@ async function initMap() {
       `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Pets permitted:</span> ${
         page.is_pets_permitted == 0 ? "no" : "yes"
       }</div>` +
-      `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Fee:</span> $${page.fee_from} - $${page.fee_to}</div>` +
-      "<div style='height: 4px'></div>";
+      `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Fee:</span> $${page.fee_from} - $${page.fee_to}</div>`;
+    // "<div style='height: 4px'></div>";
 
     let infoBubble = new InfoBubble({
       map: map,
@@ -213,4 +216,10 @@ async function toggleFilter(event) {
   }
   bounds = new google.maps.LatLngBounds();
   initMap();
+}
+
+function checkImageExist(url) {
+  var img = new Image();
+  img.src = url;
+  return img.height != 0;
 }
