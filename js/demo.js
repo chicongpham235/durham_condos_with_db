@@ -71,34 +71,33 @@ async function initMap() {
     },
   ];
 
-  let city = $("#city-filter").val();
-  switch (city) {
-    case "pickering":
-      center = new google.maps.LatLng(43.836155, -79.090002);
-      zoom = 14;
-      break;
-    case "ajax":
-      center = new google.maps.LatLng(43.841925, -79.027157);
-      zoom = 13;
-      break;
-    case "whitby":
-      center = new google.maps.LatLng(43.886483, -78.946618);
-      zoom = 11;
-      break;
-    case "oshawa":
-      center = new google.maps.LatLng(43.904006, -78.863726);
-      zoom = 12;
-      break;
-    case "clarington":
-      center = new google.maps.LatLng(43.899966, -78.682022);
-      zoom = 12;
-      break;
-    default:
-      center = new google.maps.LatLng(43.886483, -78.879618);
-      zoom = 11;
-      break;
-  }
-  bounds = new google.maps.LatLngBounds();
+  // let city = $("#city-filter").val();
+  // switch (city) {
+  //   case "pickering":
+  //     center = new google.maps.LatLng(43.836155, -79.090002);
+  //     zoom = 14;
+  //     break;
+  //   case "ajax":
+  //     center = new google.maps.LatLng(43.841925, -79.027157);
+  //     zoom = 13;
+  //     break;
+  //   case "whitby":
+  //     center = new google.maps.LatLng(43.886483, -78.946618);
+  //     zoom = 11;
+  //     break;
+  //   case "oshawa":
+  //     center = new google.maps.LatLng(43.904006, -78.863726);
+  //     zoom = 12;
+  //     break;
+  //   case "clarington":
+  //     center = new google.maps.LatLng(43.899966, -78.682022);
+  //     zoom = 12;
+  //     break;
+  //   default:
+  //     center = new google.maps.LatLng(43.886483, -78.879618);
+  //     zoom = 11;
+  //     break;
+  // }
 
   var mapOptions = {
     zoom: zoom,
@@ -110,6 +109,7 @@ async function initMap() {
   };
 
   map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+  // map.fitBounds(bounds);
 
   let name = $("#city-filter option:selected").text();
   if (name.toLowerCase() == "city") name = "Durham Condos";
@@ -122,6 +122,7 @@ async function initMap() {
   map.mapTypes.set("bestfromgoogle", jayzMapType);
   map.setMapTypeId("bestfromgoogle");
 
+  bounds = new google.maps.LatLngBounds();
   for (const key in pages) {
     const page = pages[key];
     const title = page.title_address;
@@ -130,6 +131,9 @@ async function initMap() {
     position = position.split(";");
     position = position.map((x) => Number(x));
     const path = page.path;
+
+    const latLng = new google.maps.LatLng(position[0], position[1]);
+    bounds.extend(latLng);
 
     markers[key] = new google.maps.Marker({
       position: new google.maps.LatLng(position[0], position[1]),
@@ -140,27 +144,27 @@ async function initMap() {
 
     const bg_img_url = `${page.bg_image_url}`;
 
-    const item_content = `<div class="col-xs-9 pr-0 pb-4 pt-2">
-      <div style="font-weight: 700">${page.meta_placename}</div>
-      <div style="fonnt-weight: 600; color: gray">$${getPrice(
-        page.fee_from
-      )} - $${getPrice(page.fee_to)}</div>
-    </div>`;
-    const item_img =
-      '<div class="col-xs-3 pt-2 px-0">' +
-      `<img src=${bg_img_url}
-                width = 50
-                height = 50
-                style = "width: 50px; height: 50px"
-                onerror="if(this.src!='img/default.png') this.src='img/default.png'" >` +
-      "</div>";
+    // const item_content = `<div class="col-xs-9 pr-0 pb-4 pt-2">
+    //   <div style="font-weight: 700">${page.meta_placename}</div>
+    //   <div style="fonnt-weight: 600; color: gray">$${getPrice(
+    //     page.fee_from
+    //   )} - $${getPrice(page.fee_to)}</div>
+    // </div>`;
+    // const item_img =
+    //   '<div class="col-xs-3 pt-2 px-0">' +
+    //   `<img src=${bg_img_url}
+    //             width = 50
+    //             height = 50
+    //             style = "width: 50px; height: 50px"
+    //             onerror="if(this.src!='img/default.png') this.src='img/default.png'" >` +
+    //   "</div>";
 
-    const item =
-      `<div class='col-xs-12 pr-0 card' id="item-${page.id}" style='border-bottom: thin solid rgba(0,0,0,.12)!important;'>` +
-      item_content +
-      item_img +
-      "</div>";
-    list_items.append(item);
+    // const item =
+    //   `<div class='col-xs-12 pr-0 card' id="item-${page.id}" style='border-bottom: thin solid rgba(0,0,0,.12)!important;'>` +
+    //   item_content +
+    //   item_img +
+    //   "</div>";
+    // list_items.append(item);
 
     let content_html = `<img src=${bg_img_url} onerror="this.style.backgroundColor='#c4c4c4'; this.src='img/camera-slash.svg'; "
                 style = "width: 250px; height: 150px"; position:"absolute";
@@ -221,14 +225,16 @@ async function initMap() {
       window.open(path, "_parent");
     });
 
-    const item_detail = document.getElementById(`item-${page.id}`);
-    item_detail.addEventListener("mouseover", function () {
-      infoBubble.open(map, markers[key]);
-    });
-    item_detail.addEventListener("mouseout", function () {
-      infoBubble.close();
-    });
+    // const item_detail = document.getElementById(`item-${page.id}`);
+    // item_detail.addEventListener("mouseover", function () {
+    //   infoBubble.open(map, markers[key]);
+    // });
+    // item_detail.addEventListener("mouseout", function () {
+    //   infoBubble.close();
+    // });
   }
+
+  map.fitBounds(bounds);
 }
 
 initMap();
