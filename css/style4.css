@@ -1,54 +1,51 @@
 .pl-0 {
   padding-left: 0;
 }
-
 .pr-0 {
   padding-right: 0;
 }
-
+.pr-1 {
+  padding-right: 4px;
+}
+.pl-1 {
+  padding-left: 4px;
+}
 .pa-0 {
   padding: 0;
 }
-
 .px-0 {
   padding-left: 0;
   padding-right: 0;
 }
-
 .searchbar-custom,
 .filter-custom {
-  height: 50px;
+  height: 40px;
+  text-indent: 28px;
 }
-
 .icon-center-custom {
   position: absolute;
-  right: 20px;
+  left: 20px;
   top: 50%;
   transform: translate(-50%, -50%);
   -webkit-text-stroke: 1.2px white;
 }
-
 .dropdown-custom li {
   text-align: left !important;
 }
-
 .btn-custom {
   text-align: left !important;
   position: relative !important;
 }
-
 .dropdown-custom button.btn {
   padding: 10px 10px !important;
   width: 90%;
 }
-
 .caret-custom {
   position: absolute !important;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
 }
-
 .px-1 {
   padding-left: 4px;
   padding-right: 4px;
@@ -69,4 +66,27 @@
 }
 .pt-4 {
   padding-top: 16px;
+}
+.w-100 {
+  width: 100%;
+}
+.mb-4 {
+  margin-bottom: 16px;
+}
+.mb-2 {
+  margin-bottom: 8px;
+}
+.pb-4 {
+  padding-bottom: 16px;
+}
+.pb-2 {
+  padding-bottom: 8px;
+}
+.card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }

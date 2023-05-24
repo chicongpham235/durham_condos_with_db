@@ -4,22 +4,8 @@ var infoWindow = new google.maps.InfoWindow();
 let bounds = new google.maps.LatLngBounds();
 let zoom = 11;
 let search = null;
-
-const _pickering = document.getElementById("pickering");
-const _ajax = document.getElementById("ajax");
-const _whitby = document.getElementById("whitby");
-const _oshawa = document.getElementById("oshawa");
-const _clarington = document.getElementById("clarington");
-const _durham = document.getElementById("durham");
-
-const arrToggleList = [
-  _pickering,
-  _ajax,
-  _whitby,
-  _oshawa,
-  _clarington,
-  _durham,
-];
+const list_items = $("#list-items");
+let markers = [];
 
 $().ready(function () {
   const _search = $("#search");
@@ -30,15 +16,26 @@ $().ready(function () {
       initMap();
     }
   });
+
+  const _city = $("#city-filter");
+  _city.on("change", function () {
+    initMap();
+  });
+
+  const _price = $("#price-filter");
+  _price.on("change", function () {
+    initMap();
+  });
 });
 async function fetchData() {
-  let filter = $(".filter-item.active")[0].id;
-  if (filter.includes("durham")) filter = null;
+  let city = $("#city-filter").val();
+  let price = $("#price-filter").val();
   let pages = await axios
     .get("https://durhamcondos.ca/Map/api-map.php", {
       params: {
-        city: filter,
+        city: city,
         search: search,
+        price: price,
       },
     })
     .then((res) => res.data);
@@ -47,9 +44,15 @@ async function fetchData() {
 }
 
 async function initMap() {
-  let pages = await fetchData();
+  markers.forEach((marker) => {
+    marker.setMap(null);
+    console.log(marker);
+  });
+  markers = [];
 
-  console.log(pages);
+  list_items.empty();
+
+  let pages = await fetchData();
 
   var stylez = [
     {
@@ -68,6 +71,35 @@ async function initMap() {
     },
   ];
 
+  let city = $("#city-filter").val();
+  switch (city) {
+    case "pickering":
+      center = new google.maps.LatLng(43.836155, -79.090002);
+      zoom = 14;
+      break;
+    case "ajax":
+      center = new google.maps.LatLng(43.841925, -79.027157);
+      zoom = 13;
+      break;
+    case "whitby":
+      center = new google.maps.LatLng(43.886483, -78.946618);
+      zoom = 11;
+      break;
+    case "oshawa":
+      center = new google.maps.LatLng(43.904006, -78.863726);
+      zoom = 12;
+      break;
+    case "clarington":
+      center = new google.maps.LatLng(43.899966, -78.682022);
+      zoom = 12;
+      break;
+    default:
+      center = new google.maps.LatLng(43.886483, -78.879618);
+      zoom = 11;
+      break;
+  }
+  bounds = new google.maps.LatLngBounds();
+
   var mapOptions = {
     zoom: zoom,
     tilt: 45,
@@ -79,10 +111,10 @@ async function initMap() {
 
   map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-  let name = $(".filter-item.active")[0].id;
-
+  let name = $("#city-filter option:selected").text();
+  if (name.toLowerCase() == "city") name = "Durham Condos";
   var styledMapOptions = {
-    name: name.charAt(0).toUpperCase() + name.slice(1) + " Condos",
+    name: name.charAt(0).toUpperCase() + name.slice(1),
   };
 
   var jayzMapType = new google.maps.StyledMapType(stylez, styledMapOptions);
@@ -90,7 +122,8 @@ async function initMap() {
   map.mapTypes.set("bestfromgoogle", jayzMapType);
   map.setMapTypeId("bestfromgoogle");
 
-  for (const page of pages) {
+  for (const key in pages) {
+    const page = pages[key];
     const title = page.title_address;
     const image = "img/condo.png";
     let position = page.meta_position;
@@ -98,23 +131,45 @@ async function initMap() {
     position = position.map((x) => Number(x));
     const path = page.path;
 
-    var marker = new google.maps.Marker({
+    markers[key] = new google.maps.Marker({
       position: new google.maps.LatLng(position[0], position[1]),
       map: map,
-      // title: title,
       clickable: true,
       icon: image,
     });
 
     const bg_img_url = `${page.bg_image_url}`;
 
-    let content_html = `<img src=${bg_img_url}
-                width = 250
-                style = "width: 250px; height: 150px;
+    const item_content = `<div class="col-xs-9 pr-0 pb-4 pt-2">
+      <div style="font-weight: 700">${page.meta_placename}</div>
+      <div style="fonnt-weight: 600; color: gray">$${getPrice(
+        page.fee_from
+      )} - $${getPrice(page.fee_to)}</div>
+    </div>`;
+    const item_img =
+      '<div class="col-xs-3 pt-2 px-0">' +
+      `<img src=${bg_img_url}
+                width = 50
+                height = 50
+                style = "width: 50px; height: 50px"
+                onerror="if(this.src!='img/default.png') this.src='img/default.png'" >` +
+      "</div>";
+
+    const item =
+      `<div class='col-xs-12 pr-0 card' id="item-${page.id}" style='border-bottom: thin solid rgba(0,0,0,.12)!important;'>` +
+      item_content +
+      item_img +
+      "</div>";
+    list_items.append(item);
+
+    let content_html = `<img src=${bg_img_url} onerror="this.style.backgroundColor='#c4c4c4'; this.src='img/camera-slash.svg'; "
+                style = "width: 250px; height: 150px"; position:"absolute";
                          border-top-left-radius: 8px;
                          border-top-right-radius: 8px;
                          margin-bottom: 4px">`;
-
+    // content_html += `<div style="background-color: gray; width: 250px; height: 150px">
+    // <i class="fa fa-camera-slash"></i>
+    // </div>`;
     content_html +=
       // `<div class='px-2' style="font-size:12px; max-width: 250px; word-wrap: break-word;">${page.title}</div>` +
       `<div class='px-2 pt-4' style="font-size:14px; font-weight:700; max-width: 250px; word-wrap: break-word;"><span style='font-weight: 400; color: gray'>Address:</span> ${title}</div>` +
@@ -130,7 +185,9 @@ async function initMap() {
       `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Pets permitted:</span> ${
         page.is_pets_permitted == 0 ? "no" : "yes"
       }</div>` +
-      `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Fee:</span> $${page.fee_from} - $${page.fee_to}</div>`;
+      `<div class='px-2' style="font-size:14px; max-width: 250px; word-wrap: break-word;"><span style='color: gray'>Fee:</span> $${getPrice(
+        page.fee_from
+      )} - $${getPrice(page.fee_to)}</div>`;
     // "<div style='height: 4px'></div>";
 
     let infoBubble = new InfoBubble({
@@ -152,69 +209,30 @@ async function initMap() {
       disableAnimation: true,
     });
 
-    marker.addListener("mouseover", function () {
+    markers[key].addListener("mouseover", function () {
       infoBubble.open(map, this);
     });
 
-    marker.addListener("mouseout", function () {
+    markers[key].addListener("mouseout", function () {
       infoBubble.close();
     });
 
-    new google.maps.event.addListener(marker, "click", function () {
+    new google.maps.event.addListener(markers[key], "click", function () {
       window.open(path, "_parent");
+    });
+
+    const item_detail = document.getElementById(`item-${page.id}`);
+    item_detail.addEventListener("mouseover", function () {
+      infoBubble.open(map, markers[key]);
+    });
+    item_detail.addEventListener("mouseout", function () {
+      infoBubble.close();
     });
   }
 }
 
 initMap();
 
-arrToggleList.forEach((el) => {
-  el.addEventListener("click", toggleFilter);
-});
-
-async function toggleFilter(event) {
-  arrToggleList.forEach((item) => {
-    item.classList.remove("active");
-  });
-  event.currentTarget.classList.add("active");
-  const city = $(".filter-item.active")[0].id;
-  let title_content = $("#title-content");
-  switch (city) {
-    case "durham":
-      center = new google.maps.LatLng(43.886483, -78.879618);
-      zoom = 11;
-      title_content.html("Condos in Durham Region");
-      break;
-    case "pickering":
-      center = new google.maps.LatLng(43.836155, -79.090002);
-      zoom = 14;
-      title_content.html("Condos in Pickering, Ontario");
-      break;
-    case "ajax":
-      center = new google.maps.LatLng(43.841925, -79.027157);
-      zoom = 13;
-      title_content.html("Condos in Ajax, Ontario");
-      break;
-    case "whitby":
-      center = new google.maps.LatLng(43.886483, -78.946618);
-      zoom = 11;
-      title_content.html("Condos in Whitby and Brooklin, Ontario");
-      break;
-    case "oshawa":
-      center = new google.maps.LatLng(43.904006, -78.863726);
-      zoom = 12;
-      title_content.html("Condos in Oshawa, Ontario");
-      break;
-    case "clarington":
-      center = new google.maps.LatLng(43.899966, -78.682022);
-      zoom = 12;
-      title_content.html(
-        "Condos in Courtice, Bowmanville and Newcastle, Ontario"
-      );
-      break;
-    default:
-      break;
-  }
-  bounds = new google.maps.LatLngBounds();
-  initMap();
+function getPrice(price) {
+  return (price * 1000).toLocaleString("en-US");
 }
